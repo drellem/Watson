@@ -24,6 +24,8 @@ dependencies:
 - text
 - array
 - lens
+- pqueue
+- heap
 library:
   source-dirs: src
 
