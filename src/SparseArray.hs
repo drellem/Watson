@@ -24,13 +24,13 @@ class SparseArray c a where
 
 instance SparseArray (HeapArray a) a where
   c // [] = c
-  c // (x:xs) = L.foldl' (insert) (Leaf (fst x) (snd x)) xs
+  c // l = L.foldl' (insert) (c) l
 
   getRange = rangeQuery
 
   fromElem x = Leaf (fst x) (snd x)
   
-data HeapArray a = Leaf Int a | Branch Int a (HeapArray a) (HeapArray a) | HalfBranch Int a Int a
+data HeapArray a = Leaf Int a | Branch Int a (HeapArray a) (HeapArray a) | HalfBranch Int a Int a deriving (Show)
 
 smallest a b = if a < b then a else b
 

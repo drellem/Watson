@@ -1,4 +1,8 @@
-module BkTree where
+-- BkTree that indexes metric spaces for searching. Normally BkTrees are for discrete
+-- metrics, so w/ discretize by using floor/ceiling. This is probably not the correct
+-- data structure going forward, because its efficiency will vary greatly based on the
+-- implemenation of the metric space (e.g. scale of distance)
+module BkTree(BkTree,insert,nearestNeighbors, fromList, getMaxDistance, fromElem,(//)) where
 
 -- import Data.PQueue.Min
 import qualified SparseArray as S
@@ -6,7 +10,8 @@ import Metric
 import qualified PriorityQueue as Q
 import qualified Data.List as L
 
-data BkTree a = Leaf a | Node a (S.HeapArray (BkTree a))
+data BkTree a = Leaf a | Node a (S.HeapArray (BkTree a)) deriving (Show)
+
 
 insert :: (Metric a) => BkTree a -> a -> BkTree a
 insert (Leaf e) f = Node e (S.fromElem ((ceiling (dist e f)), Leaf f))
@@ -46,3 +51,23 @@ appendResults (acc, max, s, di) (i, t) = case max of
                           maxVal2 = Q.threshold acc2 in
                         (acc2, Just (floor maxVal2), s, di)
                           
+fromList :: (Metric a) => [a] -> Maybe (BkTree a)
+fromList [] = Nothing
+fromList (x:xs) = Just (L.foldl' (insert) (Leaf x) xs)
+
+fromElem :: (Metric a) => a -> BkTree a
+fromElem x = Leaf x
+
+-- Returns all items within a given distance from the search term
+getMaxDistance :: (Metric a) => BkTree a -> Double -> a -> [(Double,a)]
+getMaxDistance (Leaf a) max s =  if dist a s <= max then [(dist a s, a)] else []
+getMaxDistance (Node a r) max s =
+  let d = dist a s
+      di = ceiling (dist a s)
+      m = floor max
+      ret = L.foldl' (appendItems) [] (S.getRange r (largest 0 (m-di), m+di))
+      appendItems l i = l ++ (getMaxDistance (snd i) max s) 
+  in
+    if d < max then (d,a):ret else ret
+
+a // b = L.foldl' (insert) a b

@@ -1,9 +1,9 @@
 -- Implements a priority queue of fixed size, so when it is full, inserting a new item removes an old one
-module PriorityQueue(HeapQueue,size,order,full,insert,newHeapQueue,threshold) where
+module PriorityQueue(HeapQueue,size,order,full,insert,newHeapQueue,threshold,toList) where
 
 import qualified Data.Heap as H
 
-data HeapQueue a = HeapQueue Int (H.MaxPrioHeap Double a)
+data HeapQueue a = HeapQueue Int (H.MaxPrioHeap Double a) deriving (Show)
 
 size :: HeapQueue a -> Int
 size (HeapQueue i _) = i
@@ -38,3 +38,5 @@ insert (HeapQueue len h) (i,e) =
       HeapQueue len (H.drop (overflow temp2 len) temp2)
 
 
+toList :: HeapQueue a -> [(Double,a)]
+toList (HeapQueue _ h) = reverse $ H.toList h
