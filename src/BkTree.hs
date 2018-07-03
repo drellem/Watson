@@ -1,16 +1,19 @@
+{-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
 -- BkTree that indexes metric spaces for searching. Normally BkTrees are for discrete
 -- metrics, so w/ discretize by using floor/ceiling. This is probably not the correct
 -- data structure going forward, because its efficiency will vary greatly based on the
 -- implemenation of the metric space (e.g. scale of distance)
-module BkTree(BkTree,insert,nearestNeighbors, fromList, getMaxDistance, fromElem,(//)) where
+module BkTree(BkTree,insert,nearestNeighbors, fromList, getMaxDistance, fromElem,(//),toJSON, fromJSON) where
 
 -- import Data.PQueue.Min
 import qualified SparseArray as S
 import Metric
 import qualified PriorityQueue as Q
 import qualified Data.List as L
+import Data.Aeson
+import GHC.Generics
 
-data BkTree a = Leaf a | Node a (S.HeapArray (BkTree a)) deriving (Show)
+data BkTree a = Leaf a | Node a (S.HeapArray (BkTree a)) deriving (Show, Generic, ToJSON, FromJSON )
 
 
 insert :: (Metric a) => BkTree a -> a -> BkTree a

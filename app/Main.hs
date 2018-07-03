@@ -42,8 +42,8 @@ tree = B.fromList mylist
 biglist = [1..10000] :: [Int]
 bigtree = B.fromElem 4 B.//biglist
 
-main = putStrLn $ show $ qsort $ Q.toList $ (B.nearestNeighbors bigtree 20 546)
-
+-- main = putStrLn $ show $ qsort $ Q.toList $ (B.nearestNeighbors bigtree 20 546)
+main = putStrLn $ show $ B.toJSON dTree
 
 
 split :: (a->Bool)->[a]->([a],[a])

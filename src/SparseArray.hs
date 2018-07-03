@@ -1,11 +1,14 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
 -- Needs to implement sparse arrays in a manner that quickly get the indices within a given range
 -- Planned implemenation is to use a heap
 -- This will be used to implement the children of a BkTree node, i.e. all of the elements of a given distance from the parent
 module SparseArray(SparseArray, (//), getRange, fromElem, HeapArray, toList) where
 
 import qualified Data.List as L
+import Data.Aeson
+import GHC.Generics
 
 class SparseArray c a where
   -- Updates the array with a list of key-value pairs
@@ -30,7 +33,7 @@ instance SparseArray (HeapArray a) a where
 
   fromElem x = Leaf (fst x) (snd x)
   
-data HeapArray a = Leaf Int a | Branch Int a (HeapArray a) (HeapArray a) | HalfBranch Int a Int a deriving (Show)
+data HeapArray a = Leaf Int a | Branch Int a (HeapArray a) (HeapArray a) | HalfBranch Int a Int a deriving (Show, Generic, ToJSON, FromJSON)
 
 smallest a b = if a < b then a else b
 

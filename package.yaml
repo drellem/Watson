@@ -27,6 +27,7 @@ dependencies:
 - pqueue
 - heap
 - QuickCheck
+- aeson
 
 library:
   source-dirs: src
