@@ -38,7 +38,7 @@ nearestNeighborsAcc (Node a r) s acc =
           where m = floor (Q.threshold acc)
                 di = ceiling (dist a s)
   in
-    ret
+    Q.insert ret (dist a s, a)
 largest a b = if a > b then a else b
 
 -- TODO: Should the Maybe Int be a Maybe Double? Also should refactor and put this under nearestNeighborsAcc

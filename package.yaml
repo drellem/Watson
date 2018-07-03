@@ -26,6 +26,8 @@ dependencies:
 - lens
 - pqueue
 - heap
+- QuickCheck
+
 library:
   source-dirs: src
 

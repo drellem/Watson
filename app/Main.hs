@@ -24,17 +24,35 @@ c :: B.BkTree (T.Text, T.Text)
 c = B.fromElem a B.// (b:d:e:[])
 
 mylist :: [Double]
-mylist = [3.8, 7.5, 8.6, 4,2, 4.0]
+mylist = [3.8, 7.5, 8.6, 4.2, 4.0]
+
+dTree :: B.BkTree Double
+dTree = B.fromElem 2.4 B.//mylist
 
 s :: S.HeapArray (Double)
 s = S.fromElem  (1,3.7 :: Double) S.// ([(1,3.8), (2, 7.5), (5, 8.6), (3, 4.2), (6, 4.0)] :: [(Int,Double)])
 
-instance Metric Double where
-  dist a b = if a-b < 0 then b-a else a-b
   
 tree :: Maybe(B.BkTree (Double))
 tree = B.fromList mylist
 
-main :: IO ()
-main = putStrLn $ show $ Q.toList $ (B.nearestNeighbors c 3 (("str", "info is really aroudn fund") :: (T.Text,T.Text)))
+--main :: IO ()
+--main = putStrLn $ show $ Q.toList $ (B.nearestNeighbors dTree 3 2)
 
+biglist = [1..10000] :: [Int]
+bigtree = B.fromElem 4 B.//biglist
+
+main = putStrLn $ show $ qsort $ Q.toList $ (B.nearestNeighbors bigtree 20 546)
+
+
+
+split :: (a->Bool)->[a]->([a],[a])
+split _ [] = ([],[])
+split f (x:xs) = if f x then (x:a, b) else (a, x:b)
+  where (a,b) = split f xs
+  
+qsort :: (Ord a) => [(a,b)] -> [(a,b)]
+qsort [] = []
+qsort ((x,y):xs) =
+  let (a,b) = split (\y -> fst y < x) xs in
+    qsort a ++ [(x,y)] ++ qsort b

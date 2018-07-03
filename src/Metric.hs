@@ -17,7 +17,12 @@ instance (Metric a, Metric b) => Metric (a, b) where
 instance Metric T.Text where
   dist = distance
 
+instance Metric Double where
+  dist x y = if x -y > 0 then x-y else y-x
 
+instance Metric Int where
+  dist x y = fromIntegral $
+    if x -y > 0 then x-y else y-x
 
 distance :: T.Text -> T.Text -> Double
 distance s t = fromIntegral $ c ! (m,n)
