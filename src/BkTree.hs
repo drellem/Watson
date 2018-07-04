@@ -3,7 +3,7 @@
 -- metrics, so w/ discretize by using floor/ceiling. This is probably not the correct
 -- data structure going forward, because its efficiency will vary greatly based on the
 -- implemenation of the metric space (e.g. scale of distance)
-module BkTree(BkTree,insert,nearestNeighbors, fromList, getMaxDistance, fromElem,(//),toJSON, fromJSON) where
+module BkTree(BkTree(..),insert,nearestNeighbors, fromList, getMaxDistance, fromElem,(//),toJSON, fromJSON, length) where
 
 -- import Data.PQueue.Min
 import qualified SparseArray as S
@@ -12,18 +12,19 @@ import qualified PriorityQueue as Q
 import qualified Data.List as L
 import Data.Aeson
 import GHC.Generics
+import Prelude hiding (length)
 
-data BkTree a = Leaf a | Node a (S.HeapArray (BkTree a)) deriving (Show, Generic, ToJSON, FromJSON )
+data BkTree a = BLeaf a | BNode a (S.HeapArray (BkTree a)) deriving (Show, Generic, ToJSON, FromJSON )
 
 
 insert :: (Metric a) => BkTree a -> a -> BkTree a
-insert (Leaf e) f = Node e (S.fromElem ((ceiling (dist e f)), Leaf f))
-insert (Node e r) f =
+insert (BLeaf e) f = BNode e (S.fromElem ((ceiling (dist e f)), BLeaf f))
+insert (BNode e r) f =
   let d = ceiling $ dist e f
       tlist = S.getRange r (d,d) in
     case tlist of
-      [] -> (Node e (r S.//[(d,Leaf f)]))
-      (x:xs) -> (Node e (r S.//[(d, insert (snd x) f)]))
+      [] -> (BNode e (r S.//[(d,BLeaf f)]))
+      (x:xs) -> (BNode e (r S.//[(d, insert (snd x) f)]))
 
 
 
@@ -33,8 +34,8 @@ nearestNeighbors t len s = nearestNeighborsAcc t s (Q.newHeapQueue len [])
 -- Fold where each intermediate result is used
 --ifoldl :: S.HeapArray a -> (b->(Int,a)->
 
-nearestNeighborsAcc (Leaf e) s acc = acc `Q.insert` (dist e s, e)
-nearestNeighborsAcc (Node a r) s acc =
+nearestNeighborsAcc (BLeaf e) s acc = acc `Q.insert` (dist e s, e)
+nearestNeighborsAcc (BNode a r) s acc =
   let (ret,_,_,_) =
         if Q.full acc then L.foldl' (appendResults) (acc, Nothing, s, di) (S.getRange r (largest 0 (m-di), m+di))
         else L.foldl' (appendResults) (acc, Nothing, s, di) (S.toList r)
@@ -56,15 +57,15 @@ appendResults (acc, max, s, di) (i, t) = case max of
                           
 fromList :: (Metric a) => [a] -> Maybe (BkTree a)
 fromList [] = Nothing
-fromList (x:xs) = Just (L.foldl' (insert) (Leaf x) xs)
+fromList (x:xs) = Just (L.foldl' (insert) (BLeaf x) xs)
 
 fromElem :: (Metric a) => a -> BkTree a
-fromElem x = Leaf x
+fromElem x = BLeaf x
 
 -- Returns all items within a given distance from the search term
 getMaxDistance :: (Metric a) => BkTree a -> Double -> a -> [(Double,a)]
-getMaxDistance (Leaf a) max s =  if dist a s <= max then [(dist a s, a)] else []
-getMaxDistance (Node a r) max s =
+getMaxDistance (BLeaf a) max s =  if dist a s <= max then [(dist a s, a)] else []
+getMaxDistance (BNode a r) max s =
   let d = dist a s
       di = ceiling (dist a s)
       m = floor max
@@ -74,3 +75,7 @@ getMaxDistance (Node a r) max s =
     if d < max then (d,a):ret else ret
 
 a // b = L.foldl' (insert) a b
+
+length :: BkTree a -> Int
+length (BLeaf _) = 1
+length (BNode a r) = L.foldl' (+) 1 (map (length . snd) $ S.toList r)

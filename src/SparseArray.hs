@@ -73,7 +73,7 @@ rangeQuery (Leaf i e) (j,k) = if j<= i && i<=k then [(i,e)] else []
 
 rangeQuery (HalfBranch i a j b) (l,u) =
   if i > u then []
-  else  let rem = (if j <= u then [(j,b)] else []) in
+  else  let rem = (if j >= l then [(j,b)] else []) in
     if i < l then rem else (i,a):rem
     
 rangeQuery (Branch i n s t) (l,u) =
@@ -85,6 +85,6 @@ toList :: HeapArray a -> [(Int,a)]
 toList (Leaf i e) = [(i,e)]
 toList (HalfBranch i a j b) = (i,a):[(j,b)]
 toList (Branch i n s t) = (i,n):(toList s) ++ (toList t)
-                              
+                          
 
 

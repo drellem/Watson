@@ -43,8 +43,9 @@ biglist = [1..10000] :: [Int]
 bigtree = B.fromElem 4 B.//biglist
 
 -- main = putStrLn $ show $ qsort $ Q.toList $ (B.nearestNeighbors bigtree 20 546)
-main = putStrLn $ show $ B.toJSON dTree
-
+-- main = putStrLn $ show $ B.toJSON dTree
+-- main = putStrLn $ show $ B.getMaxDistance bigtree 14.3 546
+main = putStrLn $ show $ B.getMaxDistance bigtree 5.0 0
 
 split :: (a->Bool)->[a]->([a],[a])
 split _ [] = ([],[])
